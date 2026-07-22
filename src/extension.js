@@ -167,21 +167,24 @@ var WindowSearchExtension = class WindowSearchExtension {
     // -----------------------------------------------------------------------
 
     _buildUI() {
-        // Full-screen backdrop
-        this._overlay = new St.Widget({
+        // Full-screen backdrop — St.BoxLayout so child alignment works
+        this._overlay = new St.BoxLayout({
             style_class: 'window-search-overlay',
+            vertical: true,
             reactive: true,
             visible: false,
-            x: 0,
-            y: 0,
             width: global.screen_width,
             height: global.screen_height,
+            x_align: St.Align.MIDDLE,
+            y_align: St.Align.START,
         });
 
-        // Main vertical layout
+        // Main vertical layout — must not x-expand or centering won't apply
         this._mainBox = new St.BoxLayout({
             style_class: 'window-search-main-box',
             vertical: true,
+            x_expand: false,
+            y_expand: false,
         });
         this._overlay.add_actor(this._mainBox);
 
@@ -279,14 +282,14 @@ var WindowSearchExtension = class WindowSearchExtension {
         this._updateSelection();
         this._overlay.show();
 
-        // Focus the entry and set the cursor
+        // Focus the entry — cursor appears at the end by default
         global.stage.set_key_focus(this._entry.clutter_text);
-        this._entry.clutter_text.set_cursor_location(9999);
     }
 
     _hide() {
         if (!this._overlay || !this._overlay.visible) return;
 
+        this._entry.set_text('');
         this._overlay.hide();
         global.stage.set_key_focus(null);
     }
