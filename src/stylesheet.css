@@ -5,11 +5,11 @@
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Central container — centered by parent's x_align, spacing from top via margin */
+/* Central container — centered by parent's x_align, small top spacing */
 .window-search-main-box {
     width: 700px;
     max-width: 80%;
-    margin-top: 120px;
+    margin-top: 20px;
     spacing: 0;
 }
 

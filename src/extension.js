@@ -301,13 +301,22 @@ var WindowSearchExtension = class WindowSearchExtension {
         this._updateSelection();
         this._overlay.show();
 
-        // Focus the entry — cursor appears at the end by default
-        global.stage.set_key_focus(this._entry.clutter_text);
+        // Push modal so all keyboard input goes to our overlay
+        Main.pushModal(this._overlay);
+
+        // Defer focus to after the overlay is rendered in the next frame
+        Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
+            if (!this._overlay || !this._overlay.visible) return false;
+            global.stage.set_key_focus(this._entry.clutter_text);
+            this._entry.clutter_text.set_selection(0, -1);
+            return false;
+        });
     }
 
     _hide() {
         if (!this._overlay || !this._overlay.visible) return;
 
+        Main.popModal();
         this._entry.set_text('');
         this._overlay.hide();
         global.stage.set_key_focus(null);
