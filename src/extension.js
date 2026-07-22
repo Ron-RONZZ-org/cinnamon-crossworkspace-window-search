@@ -534,13 +534,13 @@ var WindowSearchExtension = class WindowSearchExtension {
         const box = selectedActor.get_allocation_box();
         const actorY = box.y1 + this._resultsBox.get_allocation_box().y1;
         const actorHeight = box.y2 - box.y1;
-        const currentValue = vadjust.get_value();
-        const pageSize = vadjust.get_page_size();
+        const currentValue = vadjust.value;
+        const pageSize = vadjust.page_size;
 
         if (actorY < currentValue) {
-            vadjust.set_value(actorY);
+            vadjust.value = actorY;
         } else if (actorY + actorHeight > currentValue + pageSize) {
-            vadjust.set_value(actorY + actorHeight - pageSize);
+            vadjust.value = actorY + actorHeight - pageSize;
         }
     }
 
