@@ -253,6 +253,7 @@ var WindowSearchExtension = class WindowSearchExtension {
     }
 
     _destroyUI() {
+        Main.keybindingManager.removeHotKey('window-search-escape');
         if (this._overlayPressId && this._overlay) {
             this._overlay.disconnect(this._overlayPressId);
             this._overlayPressId = 0;
@@ -301,10 +302,14 @@ var WindowSearchExtension = class WindowSearchExtension {
         this._updateSelection();
         this._overlay.show();
 
-        // Push modal so all keyboard input goes to our overlay
-        Main.pushModal(this._overlay);
+        // Register Escape keybinding so it closes reliably regardless of focus
+        Main.keybindingManager.addHotKey(
+            'window-search-escape',
+            'Escape',
+            () => this._hide()
+        );
 
-        // Defer focus to after the overlay is rendered in the next frame
+        // Focus the entry on next frame so the widget is realized first
         Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
             if (!this._overlay || !this._overlay.visible) return false;
             global.stage.set_key_focus(this._entry.clutter_text);
@@ -316,7 +321,7 @@ var WindowSearchExtension = class WindowSearchExtension {
     _hide() {
         if (!this._overlay || !this._overlay.visible) return;
 
-        Main.popModal();
+        Main.keybindingManager.removeHotKey('window-search-escape');
         this._entry.set_text('');
         this._overlay.hide();
         global.stage.set_key_focus(null);
@@ -588,9 +593,10 @@ var WindowSearchExtension = class WindowSearchExtension {
 
     _activateWindow(metaWindow) {
         if (!metaWindow) return;
-        // Cinnamon's Main.activateWindow handles workspace switching + focusing
-        Main.activateWindow(metaWindow, global.get_current_time());
+        // Hide BEFORE activating — activateWindow may switch workspaces,
+        // which can interfere with the overlay if it's still visible
         this._hide();
+        Main.activateWindow(metaWindow, global.get_current_time());
     }
 
     // -----------------------------------------------------------------------
