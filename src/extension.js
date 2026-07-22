@@ -237,12 +237,21 @@ var WindowSearchExtension = class WindowSearchExtension {
             (entry, event) => this._onEntryKeyRelease(event)
         );
 
-        // Signal: overlay key press (Escape fallback when entry loses focus)
+        // Signal: overlay key press — handle Escape here as fallback,
+        // and forward all other keys to the entry in case it lost focus
         this._overlayKeyPressId = this._overlay.connect('key-press-event',
             (actor, event) => {
-                if (event.get_key_symbol() === Clutter.KEY_Escape) {
+                const key = event.get_key_symbol();
+                if (key === Clutter.KEY_Escape) {
                     this._hide();
                     return true;
+                }
+                // Forward control keys to entry handler if entry missed them
+                if (key === Clutter.KEY_Return || key === Clutter.KEY_KP_Enter ||
+                    key === Clutter.KEY_Up || key === Clutter.KEY_Down ||
+                    key === Clutter.KEY_Page_Up || key === Clutter.KEY_Page_Down ||
+                    key === Clutter.KEY_Home || key === Clutter.KEY_End) {
+                    return this._onEntryKeyPress(event);
                 }
                 return false;
             }
@@ -310,9 +319,9 @@ var WindowSearchExtension = class WindowSearchExtension {
             () => this._hide()
         );
 
-        // Push modal to grab keyboard — all keystrokes go to our overlay,
-        // not to the background window. The overlay then routes them to the entry.
-        Main.pushModal(this._overlay);
+        // Grab keyboard directly on the entry so typed characters reach it.
+        // Also push modal on the overlay so clicking outside closes it.
+        Main.pushModal(this._overlay, global.get_current_time());
         global.stage.set_key_focus(this._entry.clutter_text);
     }
 
