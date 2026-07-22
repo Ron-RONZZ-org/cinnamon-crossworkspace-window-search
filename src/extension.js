@@ -263,7 +263,7 @@ var WindowSearchExtension = class WindowSearchExtension {
 
     _destroyUI() {
         Main.keybindingManager.removeHotKey('window-search-escape');
-        try { Main.popModal(); } catch (e) { }
+        try { Main.popModal(this._entry ? this._entry.clutter_text : null); } catch (e) { }
         if (this._overlayPressId && this._overlay) {
             this._overlay.disconnect(this._overlayPressId);
             this._overlayPressId = 0;
@@ -319,20 +319,20 @@ var WindowSearchExtension = class WindowSearchExtension {
             () => this._hide()
         );
 
-        // Grab keyboard directly on the entry so typed characters reach it.
-        // Also push modal on the overlay so clicking outside closes it.
-        Main.pushModal(this._overlay, global.get_current_time());
-        global.stage.set_key_focus(this._entry.clutter_text);
+        // Push modal with the entry as the focus actor — pushModal internally
+        // calls set_key_focus(actor), so passing the entry ensures typed
+        // characters land in the search field (not the overlay background).
+        Main.pushModal(this._entry.clutter_text, global.get_current_time());
     }
 
     _hide() {
         if (!this._overlay || !this._overlay.visible) return;
 
         Main.keybindingManager.removeHotKey('window-search-escape');
-        Main.popModal();
+        // Must pass same actor as pushModal so popModal restores focus correctly
+        Main.popModal(this._entry.clutter_text, global.get_current_time());
         this._entry.set_text('');
         this._overlay.hide();
-        global.stage.set_key_focus(null);
     }
 
     // -----------------------------------------------------------------------
