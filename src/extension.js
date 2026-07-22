@@ -254,6 +254,7 @@ var WindowSearchExtension = class WindowSearchExtension {
 
     _destroyUI() {
         Main.keybindingManager.removeHotKey('window-search-escape');
+        try { Main.popModal(); } catch (e) { }
         if (this._overlayPressId && this._overlay) {
             this._overlay.disconnect(this._overlayPressId);
             this._overlayPressId = 0;
@@ -302,26 +303,24 @@ var WindowSearchExtension = class WindowSearchExtension {
         this._updateSelection();
         this._overlay.show();
 
-        // Register Escape keybinding so it closes reliably regardless of focus
+        // Register Escape keybinding so it closes regardless of focus
         Main.keybindingManager.addHotKey(
             'window-search-escape',
             'Escape',
             () => this._hide()
         );
 
-        // Focus the entry on next frame so the widget is realized first
-        Meta.later_add(Meta.LaterType.BEFORE_REDRAW, () => {
-            if (!this._overlay || !this._overlay.visible) return false;
-            global.stage.set_key_focus(this._entry.clutter_text);
-            this._entry.clutter_text.set_selection(0, -1);
-            return false;
-        });
+        // Push modal to grab keyboard — all keystrokes go to our overlay,
+        // not to the background window. The overlay then routes them to the entry.
+        Main.pushModal(this._overlay);
+        global.stage.set_key_focus(this._entry.clutter_text);
     }
 
     _hide() {
         if (!this._overlay || !this._overlay.visible) return;
 
         Main.keybindingManager.removeHotKey('window-search-escape');
+        Main.popModal();
         this._entry.set_text('');
         this._overlay.hide();
         global.stage.set_key_focus(null);
@@ -593,8 +592,8 @@ var WindowSearchExtension = class WindowSearchExtension {
 
     _activateWindow(metaWindow) {
         if (!metaWindow) return;
-        // Hide BEFORE activating — activateWindow may switch workspaces,
-        // which can interfere with the overlay if it's still visible
+        // Hide BEFORE activating — this pops the modal first, then
+        // activateWindow can freely switch workspace and focus the target
         this._hide();
         Main.activateWindow(metaWindow, global.get_current_time());
     }
