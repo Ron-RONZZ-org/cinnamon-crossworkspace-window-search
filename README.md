@@ -59,9 +59,11 @@ The extension hooks into Cinnamon's window manager APIs (`Meta.Display`, `Meta.W
 #   src/stylesheet.css  — visual styles
 #   src/metadata.json   — extension metadata
 
-# Reload after changes
-dbus-send --session --dest=org.cinnamon.LookingGlass --type=method_return \
-  /org/cinnamon/LookingGlass org.cinnamon.LookingGlass.Reload
+# Reload the extension via Looking Glass D-Bus API
+dbus-send --session --dest=org.Cinnamon.LookingGlass \
+  /org/Cinnamon/LookingGlass org.Cinnamon.LookingGlass.ReloadExtension \
+  string:"cinnamon-crossworkspace-window-search@ron-ronzz-org.github.com" \
+  string:"extension"
 
 # View JS errors
 journalctl -f -o cat /usr/bin/cinnamon

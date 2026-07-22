@@ -79,8 +79,14 @@ gsettings set org.cinnamon enabled-extensions "$(gsettings get org.cinnamon enab
 After editing `extension.js` or `stylesheet.css`:
 
 ```bash
-# Restart Cinnamon (preserves all open windows)
-dbus-send --session --dest=org.cinnamon.LookingGlass --type=method_return /org/cinnamon/LookingGlass org.cinnamon.LookingGlass.Reload
+# Reload the extension via Looking Glass D-Bus API
+dbus-send --session --dest=org.Cinnamon.LookingGlass \
+  /org/Cinnamon/LookingGlass org.Cinnamon.LookingGlass.ReloadExtension \
+  string:"cinnamon-crossworkspace-window-search@ron-ronzz-org.github.com" \
+  string:"extension"
+
+# Or restart Cinnamon entirely (preserves all open windows)
+# Ctrl+Alt+Escape
 ```
 
 Or use `Ctrl+Alt+Escape` to restart Cinnamon.
