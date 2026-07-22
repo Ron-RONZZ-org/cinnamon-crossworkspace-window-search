@@ -59,15 +59,14 @@ The extension hooks into Cinnamon's window manager APIs (`Meta.Display`, `Meta.W
 #   src/stylesheet.css  — visual styles
 #   src/metadata.json   — extension metadata
 
-# Reload the extension via Looking Glass D-Bus API
-dbus-send --session --dest=org.Cinnamon.LookingGlass \
-  /org/Cinnamon/LookingGlass org.Cinnamon.LookingGlass.ReloadExtension \
-  string:"cinnamon-crossworkspace-window-search@ron-ronzz-org.github.com" \
-  string:"extension"
+# Reload after changes: Ctrl+Alt+Escape
+# (restarts the Cinnamon shell, preserves all open apps)
 
 # View JS errors
 journalctl -f -o cat /usr/bin/cinnamon
 ```
+
+**Note**: The Looking Glass D-Bus `ReloadExtension` method exists but Cjs's module cache does not always invalidate, so hot-reload often serves stale code. `Ctrl+Alt+Escape` is the only reliable reload method.
 
 ## License
 

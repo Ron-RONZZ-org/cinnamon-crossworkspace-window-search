@@ -79,17 +79,17 @@ gsettings set org.cinnamon enabled-extensions "$(gsettings get org.cinnamon enab
 After editing `extension.js` or `stylesheet.css`:
 
 ```bash
-# Reload the extension via Looking Glass D-Bus API
-dbus-send --session --dest=org.Cinnamon.LookingGlass \
-  /org/Cinnamon/LookingGlass org.Cinnamon.LookingGlass.ReloadExtension \
-  string:"cinnamon-crossworkspace-window-search@ron-ronzz-org.github.com" \
-  string:"extension"
-
-# Or restart Cinnamon entirely (preserves all open windows)
-# Ctrl+Alt+Escape
+# Reliable: restart Cinnamon shell (preserves all open windows)
+# Press: Ctrl+Alt+Escape
 ```
 
-Or use `Ctrl+Alt+Escape` to restart Cinnamon.
+**`Ctrl+Alt+Escape` is the only reliable reload method.** The Looking Glass D-Bus `ReloadExtension` exists but Cjs's module cache does not always invalidate correctly, so hot-reload often serves stale bytecode. Always use a full shell restart for deterministic results after code changes.
+
+To view JS errors after restart:
+
+```bash
+journalctl -f -o cat /usr/bin/cinnamon
+```
 
 ### Keybindings
 
