@@ -168,7 +168,8 @@ var WindowSearchExtension = class WindowSearchExtension {
     // -----------------------------------------------------------------------
 
     _buildUI() {
-        // Full-screen backdrop — St.BoxLayout so child alignment works
+        // Full-screen backdrop — St.BoxLayout so child alignment works.
+        // Added to uiGroup (above windows) with high z-pos so it's on top.
         this._overlay = new St.BoxLayout({
             style_class: 'window-search-overlay',
             vertical: true,
@@ -178,6 +179,8 @@ var WindowSearchExtension = class WindowSearchExtension {
             height: global.screen_height,
             x_align: St.Align.MIDDLE,
             y_align: St.Align.START,
+            // Set background inline in case CSS loading has symlink-path issues
+            style: 'background-color: rgba(0, 0, 0, 0.55);',
         });
 
         // Main vertical layout — must not x-expand or centering won't apply
@@ -245,8 +248,8 @@ var WindowSearchExtension = class WindowSearchExtension {
             }
         );
 
-        // Add to Cinnamon chrome layer (above everything)
-        Main.layoutManager.addChrome(this._overlay);
+        // Add directly to uiGroup (above windows, below panels)
+        Main.uiGroup.add_actor(this._overlay);
     }
 
     _destroyUI() {
@@ -267,7 +270,7 @@ var WindowSearchExtension = class WindowSearchExtension {
             this._entryKeyReleaseId = 0;
         }
         if (this._overlay) {
-            Main.layoutManager.removeChrome(this._overlay);
+            Main.uiGroup.remove_actor(this._overlay);
             this._overlay.destroy();
             this._overlay = null;
         }
