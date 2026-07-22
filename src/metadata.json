@@ -1,0 +1,7 @@
+{
+    "uuid": "cinnamon-crossworkspace-window-search@ron-ronzz-org.github.com",
+    "name": "Cross-Workspace Window Search",
+    "description": "Full-screen global window search across all workspaces for Cinnamon Desktop. Press <Super><Ctrl><Alt>Up to search and jump to any open window.",
+    "version": "0.1.0",
+    "max-instances": 1
+}
