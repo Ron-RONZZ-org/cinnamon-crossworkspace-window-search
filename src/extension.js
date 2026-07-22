@@ -125,6 +125,7 @@ var WindowSearchExtension = class WindowSearchExtension {
         this._entryKeyPressId = 0;
         this._entryKeyReleaseId = 0;
         this._overlayPressId = 0;
+        this._overlayKeyPressId = 0;
     }
 
     // -----------------------------------------------------------------------
@@ -233,6 +234,17 @@ var WindowSearchExtension = class WindowSearchExtension {
             (entry, event) => this._onEntryKeyRelease(event)
         );
 
+        // Signal: overlay key press (Escape fallback when entry loses focus)
+        this._overlayKeyPressId = this._overlay.connect('key-press-event',
+            (actor, event) => {
+                if (event.get_key_symbol() === Clutter.KEY_Escape) {
+                    this._hide();
+                    return true;
+                }
+                return false;
+            }
+        );
+
         // Add to Cinnamon chrome layer (above everything)
         Main.layoutManager.addChrome(this._overlay);
     }
@@ -241,6 +253,10 @@ var WindowSearchExtension = class WindowSearchExtension {
         if (this._overlayPressId && this._overlay) {
             this._overlay.disconnect(this._overlayPressId);
             this._overlayPressId = 0;
+        }
+        if (this._overlayKeyPressId && this._overlay) {
+            this._overlay.disconnect(this._overlayKeyPressId);
+            this._overlayKeyPressId = 0;
         }
         if (this._entryKeyPressId && this._entry && this._entry.clutter_text) {
             this._entry.clutter_text.disconnect(this._entryKeyPressId);
